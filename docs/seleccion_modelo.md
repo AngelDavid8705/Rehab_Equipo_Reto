@@ -35,7 +35,7 @@ no le da mas peso a las clases con mas muestras.
 ## 4. Modelo elegido
 **Random Forest** (`n_estimators=300`, resto de hiperparametros por defecto de
 scikit-learn). Se eligio porque obtuvo el mejor resultado en ambas metricas, es
-relativamente rapido de entrenar (0.7s con este dataset) y, al ser un ensamble de
+relativamente rapido de entrenar y, al ser un ensamble de
 arboles, es menos propenso a sobreajustarse que un solo arbol de decision, ademas de que
 no requiere que las features tengan una relacion lineal con la clase.
 
