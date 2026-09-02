@@ -1,4 +1,4 @@
-"""Random Forest para clasificar los movimientos de REHAB. Autor: Angel Lugo."""
+"""Random Forest para clasificar los movimientos de REHAB."""
 
 from sklearn.ensemble import RandomForestClassifier
 
