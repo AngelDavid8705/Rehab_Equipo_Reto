@@ -19,7 +19,7 @@ clasificacion supervisada: regresion logistica, K-Nearest Neighbors, arboles de
 decision, ensambles de arboles (Random Forest) y maquinas de soporte vectorial (SVM).
 
 ## 3. Modelos investigados
-Se entrenaron y compararon 4 modelos con configuracion base (ver `src/train_models.py`):
+Se entrenaron y compararon 5 modelos con configuracion base (ver `src/train_models.py`):
 
 | Modelo | Exactitud (test) | F1 macro (test) |
 |---|---|---|
