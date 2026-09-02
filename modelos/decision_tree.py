@@ -1,4 +1,4 @@
-"""Arbol de decision para clasificar los movimientos de REHAB. Autor: Angel Lugo."""
+"""Arbol de decision para clasificar los movimientos de REHAB."""
 
 from sklearn.tree import DecisionTreeClassifier
 
