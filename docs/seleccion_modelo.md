@@ -26,6 +26,8 @@ Se entrenaron y compararon 4 modelos con configuracion base (ver `src/train_mode
 | Random Forest (300 arboles) | 0.970 | 0.969 |
 | SVM (kernel RBF, C=10) | 0.953 | 0.951 |
 | Arbol de Decision (profundidad 12) | 0.876 | 0.873 |
+| KNN (k=5) | 0.872 | 0.871 |
+| Regresion Logistica | 0.826 | 0.824 |
 
 Se uso F1 macro ademas de exactitud porque las clases estan desbalanceadas y F1 macro
 no le da mas peso a las clases con mas muestras.
