@@ -44,7 +44,20 @@ def cargar_dataset(csv_path):
     return X, y, df
 
 
-def entrenar_y_comparar(X_train, y_train, X_test, y_test):
+def split_train_val_test(X, y, val_size=0.15, test_size=0.15, random_state=RANDOM_STATE):
+    X_trainval, X_test, y_trainval, y_test = train_test_split(
+        X, y, test_size=test_size, stratify=y, random_state=random_state
+    )
+    val_ratio = val_size / (1 - test_size)
+    X_train, X_val, y_train, y_val = train_test_split(
+        X_trainval, y_trainval, test_size=val_ratio, stratify=y_trainval, random_state=random_state
+    )
+    return X_train, y_train, X_val, y_val, X_test, y_test
+
+
+def entrenar_y_comparar(X_train, y_train, X_val, y_val):
+    """Entrena cada modelo con train y los compara con validation. El resultado
+    de esta comparacion es el que se usa para elegir el mejor modelo."""
     resultados = []
     modelos_entrenados = {}
 
@@ -53,27 +66,28 @@ def entrenar_y_comparar(X_train, y_train, X_test, y_test):
         modelo.fit(X_train, y_train)
         duracion = time.time() - inicio
 
-        pred = modelo.predict(X_test)
-        acc = accuracy_score(y_test, pred)
-        f1_macro = f1_score(y_test, pred, average="macro")
+        pred = modelo.predict(X_val)
+        acc = accuracy_score(y_val, pred)
+        f1_macro = f1_score(y_val, pred, average="macro")
 
         resultados.append({
             "modelo": nombre,
-            "exactitud_test": round(acc, 4),
-            "f1_macro_test": round(f1_macro, 4),
+            "exactitud_val": round(acc, 4),
+            "f1_macro_val": round(f1_macro, 4),
             "tiempo_entrenamiento_s": round(duracion, 2),
         })
         modelos_entrenados[nombre] = modelo
 
-        print(f"{nombre:22s}  exactitud={acc:.3f}  f1_macro={f1_macro:.3f}  ({duracion:.1f}s)")
+        print(f"{nombre:22s}  exactitud_val={acc:.3f}  f1_macro_val={f1_macro:.3f}  ({duracion:.1f}s)")
 
-    return pd.DataFrame(resultados).sort_values("f1_macro_test", ascending=False), modelos_entrenados
+    return pd.DataFrame(resultados).sort_values("f1_macro_val", ascending=False), modelos_entrenados
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--csv", default="data/rehab_features_dataset.csv")
-    parser.add_argument("--test-size", type=float, default=0.2)
+    parser.add_argument("--val-size", type=float, default=0.15)
+    parser.add_argument("--test-size", type=float, default=0.15)
     parser.add_argument("--out-dir", default="results")
     args = parser.parse_args()
 
@@ -81,32 +95,40 @@ def main():
     X, y, df = cargar_dataset(args.csv)
     print(f"X: {X.shape}   y: {y.shape}   clases: {len(np.unique(y))}")
 
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=args.test_size, stratify=y, random_state=RANDOM_STATE
+    X_train, y_train, X_val, y_val, X_test, y_test = split_train_val_test(
+        X, y, val_size=args.val_size, test_size=args.test_size
     )
 
     scaler = StandardScaler()
     X_train = scaler.fit_transform(X_train)
+    X_val = scaler.transform(X_val)
     X_test = scaler.transform(X_test)
 
-    print(f"\ntrain: {X_train.shape[0]} muestras   test: {X_test.shape[0]} muestras")
-    print("\nentrenando y comparando modelos...\n")
+    print(f"\ntrain: {X_train.shape[0]}   val: {X_val.shape[0]}   test: {X_test.shape[0]} muestras")
+    print("\nentrenando y comparando modelos (con validation)...\n")
 
-    tabla, modelos = entrenar_y_comparar(X_train, y_train, X_test, y_test)
+    tabla, modelos = entrenar_y_comparar(X_train, y_train, X_val, y_val)
 
-    import os
     os.makedirs(args.out_dir, exist_ok=True)
     tabla_path = os.path.join(args.out_dir, "comparacion_modelos.csv")
     tabla.to_csv(tabla_path, index=False)
-    print(f"\ncomparacion guardada en {tabla_path}")
+    print(f"\ncomparacion (validation) guardada en {tabla_path}")
 
     mejor_nombre = tabla.iloc[0]["modelo"]
     mejor_modelo = modelos[mejor_nombre]
+
+    pred_test = mejor_modelo.predict(X_test)
+    acc_test = accuracy_score(y_test, pred_test)
+    f1_test = f1_score(y_test, pred_test, average="macro")
+    print(f"\nmejor modelo: {mejor_nombre}")
+    print(f"desempeno final en test (no usado para elegir el modelo):")
+    print(f"  exactitud_test={acc_test:.3f}  f1_macro_test={f1_test:.3f}")
+
     modelo_path = os.path.join(args.out_dir, "mejor_modelo.joblib")
     joblib.dump({"modelo": mejor_modelo, "scaler": scaler, "nombre": mejor_nombre}, modelo_path)
-    print(f"mejor modelo ({mejor_nombre}) guardado en {modelo_path}")
+    print(f"mejor modelo guardado en {modelo_path}")
 
-    print("\ntabla final:")
+    print("\ntabla de comparacion (validation):")
     print(tabla.to_string(index=False))
 
 
