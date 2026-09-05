@@ -1,0 +1,6 @@
+modelo,exactitud_test,f1_macro_test,tiempo_entrenamiento_s
+Random Forest,0.9695,0.9688,7.07
+SVM (RBF),0.9531,0.9509,0.47
+Arbol de Decision,0.8756,0.8733,0.28
+KNN (k=5),0.8721,0.8709,0.0
+Regresion Logistica,0.8263,0.8242,1.65
