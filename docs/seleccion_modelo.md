@@ -5,7 +5,7 @@ Script: `src/train_models.py`. Resultados: `results/comparacion_modelos.csv`,
 
 ## 1. Tipo de modelo requerido
 El problema es clasificacion supervisada multiclase: cada muestra tiene una etiqueta
-conocida y el objetivo es predecir esa etiqueta a partir de las senales del sensor.
+conocida y el objetivo es predecir esa etiqueta a partir de las señales del sensor.
 
 ## 2. Tipo de datos y modelos compatibles
 Se usa el dataset redefinido (`data/rehab_features_dataset.csv`) 4,257 muestras, cada
